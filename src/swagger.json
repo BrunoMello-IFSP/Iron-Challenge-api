@@ -1,0 +1,66 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "## Documentação IronFit-Api \n",
+    "description": "API",
+    "termsOfService": "http://swagger.io/terms/",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Bruno",
+      "email": "mello.bruno@live.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3333",
+      "description": "Local"
+    },
+    {
+      "url": "",
+      "description": "UAT"
+    },
+    {
+      "url": "",
+      "description": "Develop"
+    },
+    {
+      "url": "",
+      "description": "Production"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Example",
+      "description": "Everything about Example"
+    }
+  ],
+  "paths": {
+    "/example": {
+      "get": {
+        "tags": ["Example"],
+        "summary": "Retorna um exemplo de resposta",
+        "responses": {
+          "200": {
+            "description": "Resposta com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {},
+    "parameters": {}
+  }
+}

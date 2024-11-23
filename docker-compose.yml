@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3333:3333' # Certifique-se de que a porta aqui é a mesma que a porta da aplicação Node.js
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+    environment:
+      - URL_DATABASE_STRING=${URL_DATABASE_STRING}
+      - SWAGGER_USER=${SWAGGER_USER}
+      - SWAGGER_PASSWORD=${SWAGGER_PASSWORD}
+    networks:
+      - backend
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    networks:
+      - backend
+    volumes:
+      - mongo-data:/data/db
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  mongo-data:
