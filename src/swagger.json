@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "## Documentação IronFit-Api \n",
+    "title": "## Documentação IronChallenge \n",
     "description": "API",
     "termsOfService": "http://swagger.io/terms/",
     "version": "1.0.0",

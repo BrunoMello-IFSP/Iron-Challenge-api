@@ -1,4 +1,5 @@
+import User from "@/infra/entities/User";
 
 
 
-export default [];
+export default [ User];

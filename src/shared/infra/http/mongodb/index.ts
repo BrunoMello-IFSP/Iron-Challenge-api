@@ -17,11 +17,11 @@ async function connectWithMongoDB() {
     await mongoose.connect(uri);
 
     console.log(
-      '[iron_fit_api] MongoDB connection has been established successfully.',
+      '[Iron_Challenge_api] MongoDB connection has been established successfully.',
     );
   } catch (error) {
     console.error(
-      '[iron_fit_api] Unable to connect to the MongoDB database:',
+      '[Iron_Challenge_api] Unable to connect to the MongoDB database:',
       error,
     );
   }

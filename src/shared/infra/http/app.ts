@@ -24,7 +24,7 @@ app.use(express.json());
 app.use(routes);
 
 const swaggerOptions = {
-  customSiteTitle: 'Api eManager',
+  customSiteTitle: 'Api',
   tagsSorter: 'alpha',
   filter: true,
   docExpansion: 'none',
