@@ -49,6 +49,60 @@ A principio iria fazer autenticação pela api, sendo que estava sendo feito ate
   - **200:** Usuário atualizado com sucesso.
   - **404:** Usuário não encontrado.
 
+
+#### **4. Criar Evento**
+- **Endpoint:** `POST /event`  
+- **Descrição:** Cria um novo evento com categorias e requisitos de peso.  
+- **Requer Autenticação:** Sim — Token enviado no header como `Authorization: Bearer <token>`
+#### 📥 Body
+```json
+{
+  "name": "Campeonato de Crossfit",
+  "description": "Competição anual de Crossfit",
+  "startDate": "2025-04-10T08:00:00.000Z",
+  "finishDate": "2025-04-12T18:00:00.000Z",
+  "categories": [
+    {
+      "name": "Crossfit",
+      "weightRequirement": 70
+    },
+    {
+      "name": "Strongman",
+      "weightRequirement": 90
+    }
+  ]
+}
+```
+
+#### 📤 Respostas
+- **201 Created**
+```json
+{
+  "message": "Evento criado com sucesso!",
+  "event": {
+    "_id": "66371f8019b06cd18282a5d0",
+    "name": "Campeonato de Crossfit",
+    "description": "Competição anual de Crossfit",
+    "startDate": "2025-04-10T08:00:00.000Z",
+    "finishDate": "2025-04-12T18:00:00.000Z",
+    "categories": [
+      "66371f8019b06cd18282a5cf",
+      "66371f8019b06cd18282a5ce"
+    ],
+    "createdAt": "2025-04-10T10:00:00.000Z",
+    "updatedAt": "2025-04-10T10:00:00.000Z"
+  }
+}
+```
+
+#### ⚠️ Erros possíveis
+| Código | Motivo |
+|--------|--------|
+| 400    | Token ausente ou campos obrigatórios inválidos |
+| 409    | Evento já existe |
+| 500    | Erro interno do servidor |
+
+
 ---
 
 
