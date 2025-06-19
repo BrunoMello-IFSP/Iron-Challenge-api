@@ -8,7 +8,6 @@ export class RegistrationController {
     const token = req.headers['authorization']
     const data = req.body;
 
-    console.log('teste')
     try {
       if (!token) {
         return res.status(400).json({ error: 'Token is required' });
@@ -88,6 +87,6 @@ export class RegistrationController {
 
       return res.status(500).json({ error: 'Internal Server Error' });
     }
-  }
 
+  }
 }

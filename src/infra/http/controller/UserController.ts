@@ -4,6 +4,8 @@ import AppError from '@/shared/errors/AppError';
 import { container } from 'tsyringe';
 import { GetOneUserService } from '@/services/GetOneUserService';
 import { UpdateUserService } from '@/services/UpdateUserService';
+import mongoose from 'mongoose';
+import { IUser } from '@/interfaces/IUser';
 
 export class UserController {
   public async handle(req: Request, res: Response): Promise<Response> {
@@ -32,15 +34,15 @@ export class UserController {
 
   async index(req: Request, res: Response): Promise<Response> {
     const { token } = req.body
-    try {      
+    try {
 
       if (!token) {
         return res.status(400).json({ error: 'Token is required' });
       }
 
-    const getOneUserService = container.resolve(GetOneUserService)
+      const getOneUserService = container.resolve(GetOneUserService)
 
-    await getOneUserService.execute({ token: String(token) });    
+      await getOneUserService.execute({ token: String(token) });
 
       return res.status(200).json({ message: 'User exists' });
     } catch (error) {
@@ -55,17 +57,25 @@ export class UserController {
   public async update(request: Request, res: Response): Promise<Response> {
     const token = request.headers['authorization'];
     const data = request.body;
-
-   console.log('teste')
+    const User = mongoose.model<IUser>('users');
     try {
-      
-      console.log(data);
-      
 
       if (!token) {
         return res.status(400).json({ error: 'Token is required' });
       }
-     
+
+      const user = await User.findOne({ token });
+
+
+      if (data.email && data.email !== user?.email) {
+        const emailExists = await User.findOne({ email: data.email });
+
+        if (emailExists) {
+          throw new AppError('Email is already in use', '409', 409);
+        }
+      }
+
+
       const tokenValue = token.startsWith('Bearer ') ? token.slice(7) : token;
 
       const updateUserService = new UpdateUserService();
@@ -74,6 +84,7 @@ export class UserController {
 
       return res.status(200).json(updatedUser);
     } catch (error) {
+      console.error('[UpdateUserController] ERRO:', error);
       if (error instanceof AppError) {
         return res.status(error.statusCode).json({ error: error.message });
       }

@@ -9,6 +9,7 @@ export class EventCreate {
     const token = req.headers['authorization'];
     const { name, description, startDate, finishDate, categories } = req.body;
 
+
     if (!token) {
       return res.status(400).json({ error: 'Token is required' });
     }
@@ -27,7 +28,7 @@ export class EventCreate {
 
       const createEventService = container.resolve(CreateEventService);
 
-      const event = await createEventService.execute({ name, description, startDate, finishDate, categories });
+      const event = await createEventService.execute({ name, description, startDate, finishDate, categories, token: String(tokenValue) });
 
       return res.status(201).json({ message: 'Evento criado com sucesso!', event });
 
