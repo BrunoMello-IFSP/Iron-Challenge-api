@@ -3,5 +3,6 @@ export interface ICreateEventDTO {
   description: string;
   startDate: string;
   finishDate: string;
+  token: string;
   categories: { name: string; weightRequirement: number }[];
 }
