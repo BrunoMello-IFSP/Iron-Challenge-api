@@ -5,7 +5,7 @@ export interface IRegistration {
   userId: Schema.Types.ObjectId;
   eventId: Schema.Types.ObjectId;
   categoryId: Schema.Types.ObjectId;
-  competitorWeigh: boolean;
+  competitorWeight: Number;
   createdAt: Date;
   updatedAt: Date;
 }

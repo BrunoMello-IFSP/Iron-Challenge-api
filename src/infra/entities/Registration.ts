@@ -21,8 +21,8 @@ const RegistrationSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Categories"
     },
-    competitorWeigh: {
-      type: Boolean
+    competitorWeight: {
+      type: Number
     },
   },
   { timestamps: true }
