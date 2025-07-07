@@ -6,6 +6,7 @@ export interface IUpdateUserDTO {
   phone?: number;
   email?: string;
   role?: string;
+  avatar?: string;
   address?: {
     street?: string;
     number?: number;

@@ -33,18 +33,20 @@ export class UserController {
   }
 
   async index(req: Request, res: Response): Promise<Response> {
-    const { token } = req.body
+    const token = req.headers['authorization'];
     try {
 
       if (!token) {
         return res.status(400).json({ error: 'Token is required' });
       }
 
+      const tokenValue = token.startsWith('Bearer ') ? token.slice(7) : token;
+
       const getOneUserService = container.resolve(GetOneUserService)
 
-      await getOneUserService.execute({ token: String(token) });
+      const user = await getOneUserService.execute({ token: String(tokenValue) });
 
-      return res.status(200).json({ message: 'User exists' });
+      return res.status(200).json(user);
     } catch (error) {
       if (error instanceof AppError) {
         return res.status(error.statusCode).json({ error: error.message });
