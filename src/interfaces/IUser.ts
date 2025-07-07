@@ -7,7 +7,7 @@ interface IAddress {
   complement: string;
   neighborhood: string;
   city: string;
-  uf: string;  
+  uf: string;
 }
 
 export interface IUser {
@@ -21,6 +21,7 @@ export interface IUser {
   address: IAddress;
   token: string;
   role: string;
+  avatar: string;
   createdAt: Date;
   updatedAt: Date;
 }

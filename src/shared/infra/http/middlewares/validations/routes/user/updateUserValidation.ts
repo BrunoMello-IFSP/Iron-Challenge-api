@@ -12,6 +12,7 @@ export const updateUserValidation = {
     phone: Joi.number().optional(),
     email: Joi.string().email(),
     role: Joi.string().optional(),
+    avatar: Joi.string().optional(),
     address: Joi.object({
       street: Joi.string().optional(),
       number: Joi.number().optional(),
