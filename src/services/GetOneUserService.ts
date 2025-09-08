@@ -6,15 +6,17 @@ interface IRequest {
 }
 
 export class GetOneUserService {
-  public async execute({token}: IRequest): Promise<void> {
+  public async execute({ token }: IRequest): Promise<void> {
     const User = mongoose.model('users');
 
-    const userExists =  await User.findOne({ token });
+    const userExists = await User.findOne({ token });
 
-    if (!userExists) {      
+    console.log(token)
+
+    if (!userExists) {
       throw new AppError("User not found", "404", 404);
     }
- 
-    return;    
+
+    return userExists;
   }
 }

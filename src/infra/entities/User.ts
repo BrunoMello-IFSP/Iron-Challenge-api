@@ -4,17 +4,17 @@ import { IUser } from '@/interfaces/IUser';
 
 export interface IUserMongooseSchema
   extends Document,
-    IUser,
-    Omit<IUser, '_id'> {}
+  IUser,
+  Omit<IUser, '_id'> { }
 
 const UserSchema = new Schema(
   {
     name: {
-      type: String,      
+      type: String,
     },
     cpf: {
       type: String,
-      
+
     },
     birthDate: {
       type: Date,
@@ -23,7 +23,7 @@ const UserSchema = new Schema(
       type: String,
     },
     phone: {
-      type: Number,      
+      type: Number,
     },
     email: {
       type: String,
@@ -53,13 +53,17 @@ const UserSchema = new Schema(
         type: String,
       },
     },
-  token: {
-    type: String,
-  },
-  role: {
-    type: String,
-    default: 'user',
-  },
+    token: {
+      type: String,
+    },
+    role: {
+      type: String,
+      default: 'user',
+    },
+    avatar: {
+      type: String,
+      default: null
+    }
   },
   {
     timestamps: true,

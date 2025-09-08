@@ -8,51 +8,6 @@ A API IRON Challenge é um sistema backend desenvolvido para gerenciar competiç
 ### Autenticação
 A principio iria fazer autenticação pela api, sendo que estava sendo feito ate a rota e middleware para autenticação, porem sera feito no firebase.
 
-### **Usuários**
-
-#### **1. Criar Usuário**
-- **Endpoint:** `POST /users`  
-- **Descrição:** Cria um novo usuário com base em um token único.  
-- **Parâmetros:**  
-  - **Body:**  
-    ```json
-    {
-      "token": "string"
-    }
-    ```
-- **Respostas:**
-  - **201:** Usuário criado com sucesso.
-  - **409:** Usuário já existe.
-
-#### **2. Consultar Usuário**
-- **Endpoint:** `GET /users/:token`  
-- **Descrição:** Retorna os dados de um usuário específico.  
-- **Parâmetros:**  
-  - **Path:** `token` (string) - Token único do usuário.
-- **Respostas:**
-  - **200:** Usuário encontrado.
-  - **404:** Usuário não encontrado.
-
-#### **3. Atualizar Usuário**
-- **Endpoint:** `PUT /users/:token`  
-- **Descrição:** Atualiza as informações de um usuário.  
-- **Parâmetros:**  
-  - **Path:** `token` (string) - Token único do usuário.  
-  - **Body:**  
-    ```json
-    {
-      "field": "value"
-    }
-    ```
-    *(Exemplo: Atualizar nome, e-mail, etc.)*
-- **Respostas:**
-  - **200:** Usuário atualizado com sucesso.
-  - **404:** Usuário não encontrado.
-
----
-
-
-
 ## Tecnologias Principais
 
 - **Node.js**: Ambiente de execução JavaScript.

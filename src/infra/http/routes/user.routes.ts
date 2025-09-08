@@ -8,21 +8,23 @@ const userController = new UserController();
 
 
 userRouter.post(
-  '/', 
+  '/',
   celebrate({
     [Segments.BODY]: {
-      token: Joi.string().required(),       
+      token: Joi.string().required(),
     },
   }),
   userController.handle,
 );
 
 userRouter.get(
-  '/', 
+  '/',
   celebrate({
-    [Segments.BODY]: {
-      token: Joi.string().required(),       
-    },
+    [Segments.HEADERS]: Joi.object({
+      authorization: Joi.string()
+        .pattern(/^Bearer\s[\w-]+$/)
+        .required(),
+    }).unknown(true),
   }),
   userController.index,
 )
