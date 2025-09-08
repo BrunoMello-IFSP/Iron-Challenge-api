@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "## Documentação IronChallenge \n",
-    "description": "API",
+    "title": "IronChallenge API",
+    "description": "Documentação da API IronChallenge",
     "termsOfService": "http://swagger.io/terms/",
     "version": "1.0.0",
     "contact": {
@@ -11,56 +11,195 @@
     }
   },
   "servers": [
-    {
-      "url": "http://localhost:3333",
-      "description": "Local"
-    },
-    {
-      "url": "",
-      "description": "UAT"
-    },
-    {
-      "url": "",
-      "description": "Develop"
-    },
-    {
-      "url": "",
-      "description": "Production"
-    }
+    { "url": "http://localhost:3333", "description": "Local" }
   ],
   "tags": [
-    {
-      "name": "Example",
-      "description": "Everything about Example"
-    }
+    { "name": "Championship", "description": "Rotas de campeonato" },
+    { "name": "Event", "description": "Rotas de evento" },
+    { "name": "Registration", "description": "Rotas de inscrição" },
+    { "name": "User", "description": "Rotas de usuário" }
   ],
+  "components": {
+  "securitySchemes": {
+    "bearerAuth": {
+      "type": "http",
+      "scheme": "bearer",
+      "bearerFormat": "JWT"
+    }
+  }
+},
   "paths": {
-    "/example": {
+    "/championship/generateEntry": {
+      "post": {
+        "tags": ["Championship"],
+        "summary": "Gera a ordem de entrada do campeonato",
+        "parameters": [
+          { "name": "authorization", "in": "header", "required": true, "schema": { "type": "string" } },
+          { "name": "eventId", "in": "query", "required": true, "schema": { "type": "string" } },
+          { "name": "categoryId", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Ordem gerada com sucesso" } }
+      }
+    },
+    "/championship/orderList": {
       "get": {
-        "tags": ["Example"],
-        "summary": "Retorna um exemplo de resposta",
+        "tags": ["Championship"],
+        "summary": "Lista a ordem de entrada",
+        "parameters": [
+          { "name": "authorization", "in": "header", "required": true, "schema": { "type": "string" } },
+          { "name": "eventId", "in": "query", "required": true, "schema": { "type": "string" } },
+          { "name": "categoryId", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
         "responses": {
           "200": {
-            "description": "Resposta com sucesso",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "text": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
+            "description": "Ordem retornada com sucesso",
+            "content": { "application/json": { "schema": { "type": "array", "items": { "type": "object" } } } }
           }
         }
       }
+    },
+    "/championship/score": {
+      "patch": {
+        "tags": ["Championship"],
+        "summary": "Atualiza pontos de um competidor",
+        "parameters": [
+          { "name": "authorization", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_id": { "type": "string" },
+                  "eventId": { "type": "string" },
+                  "categoryId": { "type": "string" },
+                  "attended": { "type": "boolean", "nullable": true },
+                  "repetition": { "type": "number", "nullable": true }
+                },
+                "required": ["_id", "eventId", "categoryId"]
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Pontuação atualizada" } }
+      }
+    },
+    "/championship/result": {
+      "get": {
+        "tags": ["Championship"],
+        "summary": "Retorna o resultado em tempo real",
+        "parameters": [
+          { "name": "authorization", "in": "header", "required": true, "schema": { "type": "string" } },
+          { "name": "eventId", "in": "query", "required": true, "schema": { "type": "string" } },
+          { "name": "categoryId", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado retornado com sucesso",
+            "content": { "application/json": { "schema": { "type": "object" } } }
+          }
+        }
+      }
+    },
+    "/championship/winners": {
+      "patch": {
+        "tags": ["Championship"],
+        "summary": "Gera o ranking final e salva as posições",
+        "parameters": [
+          { "name": "authorization", "in": "header", "required": true, "schema": { "type": "string" } },
+          { "name": "eventId", "in": "query", "required": true, "schema": { "type": "string" } },
+          { "name": "categoryId", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Ranking final gerado" } }
+      }
+    },
+
+    "/event": {
+      "post": {
+        "tags": ["Event"],
+        "summary": "Cria um novo evento",
+         "security": [
+          { "bearerAuth": [] }
+          ],        
+        "parameters": [
+         
+        ],
+        
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "description": { "type": "string" },
+                  "startDate": { "type": "string", "format": "date-time" },
+                  "finishDate": { "type": "string", "format": "date-time" },
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": { "type": "string" },
+                        "weightRequirement": { "type": "number" }
+                      },
+                      "required": ["name","weightRequirement"]
+                    }
+                  }
+                },
+                "required": ["name","description","startDate","finishDate","categories"]
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Evento criado com sucesso" } }
+      }
+    },
+
+    "/registration": {
+      "post": {
+        "tags": ["Registration"],
+        "summary": "Cria uma inscrição",
+        "parameters": [
+          { "name": "authorization", "in": "header", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "eventId": { "type": "string" },
+                  "categoryId": { "type": "string" },
+                  "competitorWeight": { "type": "number" }
+                },
+                "required": ["eventId","categoryId","competitorWeight"]
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Inscrição criada" } }
+      }
+    },
+
+    "/user": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Cria ou autentica um usuário via token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object", "properties": { "token": { "type": "string" } }, "required": ["token"] }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Usuário criado ou autenticado" } }
+      }
     }
-  },
-  "components": {
-    "schemas": {},
-    "parameters": {}
   }
 }
