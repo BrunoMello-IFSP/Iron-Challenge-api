@@ -5,7 +5,7 @@ import { exampleRouter } from '@/infra/http/routes/example.routes';
 import { userRouter } from '@/infra/http/routes/user.routes';
 import { eventRouter } from '@/infra/http/routes/event.routes';
 import { registrationRouter } from '@/infra/http/routes/registration.routes';
-import { championshipRouter } from '@/infra/http/routes/championship.router';
+import { championshipRouter } from '@/infra/http/routes/championship.routes';
 
 
 const routes = Router();
