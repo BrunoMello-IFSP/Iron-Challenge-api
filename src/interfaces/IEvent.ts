@@ -1,7 +1,7 @@
-import { Schema } from "mongoose";
+import { Schema, Types } from "mongoose";
 import { IUser } from "./IUser";
 
-interface ICategories{
+interface ICategories {
   _id: Schema.Types.ObjectId;
   name: string;
 }
@@ -13,7 +13,7 @@ export interface IEvent {
   startDate: Date;
   finishDate: Date;
   ICategories: ICategories[];
-  IOrganizer: IUser;
+  organizer: Types.ObjectId | IUser;
   createdAt: Date;
   updatedAt: Date;
 }

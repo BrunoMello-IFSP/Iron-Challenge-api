@@ -59,12 +59,13 @@ app.use((err: Error, request: Request, response: Response, _: NextFunction) => {
     });
   }
 
-  console.log(err);
+  console.error('Erro não tratado:', err);
 
   return response.status(500).json({
     status: 'error',
-    message: 'Internal server error',
+    message: err.message, // <- Mostra o erro real
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
   });
-});
+})
 
 export { app, server };

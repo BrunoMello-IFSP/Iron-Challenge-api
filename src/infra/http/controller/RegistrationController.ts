@@ -89,4 +89,32 @@ export class RegistrationController {
     }
 
   }
+
+  public async delete(req: Request, res: Response): Promise<Response> {
+    const token = req.headers['authorization'];
+    const { id } = req.params;
+
+    try {
+      if (!token) {
+        return res.status(400).json({ error: 'Token is required' });
+      }
+
+      const tokenValue = token.startsWith('Bearer ') ? token.slice(7) : token;
+
+      const registrationService = new RegistrationService();
+
+      await registrationService.delete({
+        token: String(tokenValue),
+        registrationId: new Types.ObjectId(id),
+      });
+
+      return res.status(200).json({ message: 'Registration deleted successfully.' });
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({ error: error.message });
+      }
+
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
 }
