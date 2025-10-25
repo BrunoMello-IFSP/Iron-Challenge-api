@@ -24,6 +24,12 @@ interface IListRequest {
     categoryId?: Types.ObjectId;
   };
 }
+
+interface IDeleteRegistration {
+  token: string,
+  registrationId: Types.ObjectId
+
+}
 export class RegistrationService {
   public async execute({ token, data }: IRequest): Promise<IRegistrationDTO> {
     const Registration = mongoose.model<IRegistration>('registrations')
@@ -144,4 +150,27 @@ export class RegistrationService {
     return registrations;
   }
 
+  public async delete({ token, registrationId }: IDeleteRegistration): Promise<void> {
+    const Registration = mongoose.model<IRegistration>('registrations');
+    const User = mongoose.model<IUser>('users');
+
+    const userExists = await User.findOne({ token });
+    if (!userExists) {
+      throw new AppError('User not found', '404', 404);
+    }
+
+    const userRegistration = await Registration.findById(registrationId);
+    if (!userRegistration) {
+      throw new AppError('Registration not found', '404', 404);
+    }
+
+    if (String(userRegistration.userId) !== String(userExists._id)) {
+      throw new AppError('Not Permission', '403', 403);
+    }
+
+    await Registration.deleteOne({ _id: registrationId });
+  }
+
 }
+
+

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import AppError from '@/shared/errors/AppError';
 import { container } from 'tsyringe';
 import { CreateEventService } from '@/services/CreateEventService';
+import { EventDeleteService } from '@/services/EventDeleteService';
 
 
 export class EventCreate {
@@ -38,6 +39,38 @@ export class EventCreate {
       }
 
       return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+}
+
+export class EventDelete {
+  async handle(req: Request, res: Response) {
+    const { id } = req.params;
+    const token = req.headers['authorization'];
+
+    if (!token) {
+      return res.status(401).json({ message: "Token não fornecido." });
+    }
+
+    // Extrai apenas o token (remove o 'Bearer ')
+    const tokenValue = token.startsWith('Bearer ') ? token.slice(7) : token;
+
+    const eventDeleteService = new EventDeleteService();
+
+    try {
+      await eventDeleteService.execute({ eventId: id, token: String(tokenValue) });
+      return res.status(200).json({ message: "Evento deletado com sucesso." });
+
+    } catch (error: any) {
+      if (error.message === "Evento não encontrado.") {
+        return res.status(404).json({ message: error.message });
+      }
+      if (error.message === "Acesso negado. Você não é o organizador deste evento.") {
+        return res.status(403).json({ message: error.message });
+      }
+
+      console.error(error);
+      return res.status(500).json({ message: "Erro ao deletar evento." });
     }
   }
 }

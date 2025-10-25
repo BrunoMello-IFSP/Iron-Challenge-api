@@ -59,4 +59,17 @@ registrationRouter.get(
   registrationController.list.bind(registrationController)
 );
 
+registrationRouter.delete(
+  "/:id",
+  celebrate({
+    [Segments.HEADERS]: Joi.object({
+      authorization: Joi.string().pattern(/^Bearer\s[\w-]+$/).required(),
+    }).unknown(true),
+    [Segments.PARAMS]: Joi.object({
+      id: Joi.string().required(),
+    }),
+  }),
+  registrationController.delete,
+);
+
 export { registrationRouter }
