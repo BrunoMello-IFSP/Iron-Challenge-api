@@ -12,18 +12,18 @@ export class UserController {
     try {
       const { token } = req.body;
 
-
       if (!token) {
         return res.status(400).json({ error: 'Token is required' });
       }
 
       const createUserService = new CreateUserService();
 
-
       await createUserService.execute({ token });
 
       return res.status(201).json({ message: 'User created successfully' });
     } catch (error) {
+      console.error('Erro ao criar usuário:', error); // <- aqui você verá o erro real no terminal
+
       if (error instanceof AppError) {
         return res.status(error.statusCode).json({ error: error.message });
       }
@@ -31,6 +31,7 @@ export class UserController {
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
+
 
   async index(req: Request, res: Response): Promise<Response> {
     const token = req.headers['authorization'];
