@@ -156,7 +156,134 @@
           }
         },
         "responses": { "200": { "description": "Evento criado com sucesso" } }
+      },
+       "get": {
+    "tags": ["Event"],
+    "summary": "Listar eventos ativos",
+    "description": "Retorna os eventos cuja data de término (finishDate) seja maior ou igual à data atual, incluindo suas categorias.",
+    "security": [
+      { "bearerAuth": [] }
+    ],
+    "responses": {
+      "200": {
+        "description": "Lista de eventos ativos",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "_id": {
+                    "type": "string",
+                    "example": "6972d96a03415a6b36cc244b"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Evento de test n2"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Evento de test..."
+                  },
+                  "startDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2026-10-10T13:00:00.000Z"
+                  },
+                  "finishDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2026-10-10T15:00:00.000Z"
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string",
+                          "example": "6972d96a03415a6b36cc244c"
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "RX"
+                        },
+                        "weightRequirement": {
+                          "type": "number",
+                          "example": 100
+                        }
+                      }
+                    }
+                  },
+                  "organizer": {
+                    "type": "string",
+                    "example": "69685614cb3bbf5db9ec98ee"
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "Token não fornecido",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Token is required"
+                }
+              }
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Usuário não encontrado",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "User not found"
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Erro interno do servidor",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Internal Server Error"
+                }
+              }
+            }
+          }
+        }
       }
+    }
+  }
     },
     "/events/{id}": {
       "delete": {
