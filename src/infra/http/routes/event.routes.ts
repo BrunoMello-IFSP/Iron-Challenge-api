@@ -1,11 +1,12 @@
 import { Router } from "express";
 
 import { celebrate, Joi, Segments } from "celebrate";
-import { EventCreate, EventDelete } from "../controller/EventController";
+import { EventCreate, EventDelete, EventListActive } from "../controller/EventController";
 
 const eventRouter = Router();
 const eventCreateController = new EventCreate();
 const eventDeleteController = new EventDelete();
+const eventListActiveController = new EventListActive();
 
 // Rota para criação de evento
 eventRouter.post(
@@ -46,6 +47,16 @@ eventRouter.delete(
     }),
   }),
   eventDeleteController.handle
+);
+
+eventRouter.get(
+  "/active",
+  celebrate({
+    [Segments.HEADERS]: Joi.object({
+      authorization: Joi.string().pattern(/^Bearer\s[\w-]+$/).required(),
+    }).unknown(true),
+  }),
+  eventListActiveController.handle
 );
 
 

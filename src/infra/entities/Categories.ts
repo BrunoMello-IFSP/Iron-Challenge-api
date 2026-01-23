@@ -11,15 +11,6 @@ const CategoriesSchema = new Schema({
     type: String,
     required: true,
   },
-  event: {
-    _id: {
-      type: mongoose.Types.ObjectId,
-      ref: 'events',
-    },
-    name: {
-      type: String,
-    },
-  },
   weightRequirement: {
     type: Number,
     required: true,
