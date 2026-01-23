@@ -14,37 +14,60 @@ export class CreateEventService {
     startDate,
     finishDate,
     categories,
-    token
+    token,
   }: ICreateEventDTO): Promise<IEvent> {
-    const EventModel = mongoose.model<IEvent>('events');
-    const User = mongoose.model<IUser>('users');
+    const EventModel = mongoose.model<IEvent>("events");
+    const CategoryModel = mongoose.model("categories");
+    const UserModel = mongoose.model<IUser>("users");
 
-    const eventExists = await EventModel.findOne({ name, startDate, finishDate });
-
-    const user = await User.findOne({ token });
+    const eventExists = await EventModel.findOne({
+      name,
+      startDate,
+      finishDate,
+    });
 
     if (eventExists) {
-      throw new AppError('Event already exists', '409', 409);
+      throw new AppError("Event already exists", "409", 409);
     }
 
-    const createdCategories = await Categories.insertMany(
-      categories.map((category: { name: string; weightRequirement: number }) => ({
+    const user = await UserModel.findOne({ token });
+    if (!user) {
+      throw new AppError("User not found", "404", 404);
+    }
+
+
+    const event = await EventModel.create({
+      name,
+      description,
+      startDate,
+      finishDate,
+      organizer: user._id,
+      categories: [],
+    });
+
+
+    const createdCategories = await CategoryModel.insertMany(
+      categories.map((category) => ({
         name: category.name,
         weightRequirement: category.weightRequirement,
       }))
     );
 
-    const event = new EventModel({
-      name,
-      description,
-      organizer: user?._id,
-      startDate,
-      finishDate,
-      categories: createdCategories.map((category) => category._id),
+
+    await EventModel.findByIdAndUpdate(event._id, {
+      $push: {
+        categories: {
+          $each: createdCategories.map((c) => c._id),
+        },
+      },
     });
 
-    await event.save();
 
-    return event;
+    const updatedEvent = await EventModel.findById(event._id).populate({
+      path: "categories",
+      select: "name weightRequirement",
+    });
+
+    return updatedEvent as IEvent;
   }
 }
