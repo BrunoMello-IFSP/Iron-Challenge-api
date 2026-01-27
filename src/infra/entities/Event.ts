@@ -28,7 +28,7 @@ const EventSchema = new Schema(
     ],
     organizer: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'users',
     },
   },
   { timestamps: true }

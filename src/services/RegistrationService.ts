@@ -1,8 +1,10 @@
 import { IRegistrationDTO } from "@/interfaces/dtos/IRegistrationDTO";
+import { IRegistrationListResponseDTO } from "@/interfaces/dtos/IRegistrationListResponseDTO";
 import { IEvent } from "@/interfaces/IEvent";
 import { IRegistration } from "@/interfaces/IRegistration";
 import { IUser } from "@/interfaces/IUser";
 import AppError from "@/shared/errors/AppError";
+import { response } from "express";
 import mongoose, { Schema, Types } from "mongoose";
 
 interface IRequest {
@@ -98,7 +100,7 @@ export class RegistrationService {
     return registration.toObject();
   }
 
-  public async list({ token, data }: IListRequest): Promise<any[]> {
+  public async list({ token, data }: IListRequest): Promise<IRegistrationListResponseDTO[]> {
     const Registration = mongoose.model<IRegistration>('registrations');
     const User = mongoose.model<IUser>('users');
     const Event = mongoose.model<IEvent>('events');
@@ -112,8 +114,11 @@ export class RegistrationService {
     const query: any = {};
 
     if (user.role === 'admin') {
-      // Buscar eventos que o admin criou
-      const eventsCreated = await Event.find({ organizer: user._id }, { _id: 1 });
+      const eventsCreated = await Event.find(
+        { organizer: user._id },
+        { _id: 1 }
+      );
+
       const eventIds = eventsCreated.map(event => event._id);
 
       if (eventIds.length === 0) {
@@ -123,9 +128,14 @@ export class RegistrationService {
       query.eventId = { $in: eventIds };
 
       if (data.eventId) {
+        const isAllowed = eventIds.some(
+          id => id.toString() === data.eventId?.toString()
+        );
 
-        const isAllowed = eventIds.some(id => id.toString() === data.eventId?.toString());
-        if (!isAllowed) return [];
+        if (!isAllowed) {
+          return [];
+        }
+
         query.eventId = data.eventId;
       }
 
@@ -136,6 +146,7 @@ export class RegistrationService {
     } else {
       query.userId = user._id;
 
+
       if (data.eventId) {
         query.eventId = data.eventId;
       }
@@ -145,9 +156,34 @@ export class RegistrationService {
       }
     }
 
-    const registrations = await Registration.find(query).lean();
+    const registrations = await Registration
+      .find(query)
+      .populate({
+        path: 'eventId',
+        select: 'name startDate finishDate',
+      })
+      .populate({
+        path: 'categoryId',
+        select: 'name weightRequirement',
+      })
+      .lean<IRegistration[]>();
 
-    return registrations;
+
+    const formatted = registrations.map(
+      (reg): IRegistrationListResponseDTO => ({
+        _id: reg._id as unknown as Types.ObjectId,
+        userId: reg.userId as unknown as Types.ObjectId,
+        competitorWeight: Number(reg.competitorWeight),
+        createdAt: reg.createdAt,
+        updatedAt: reg.updatedAt,
+
+        event: reg.eventId as any,
+        category: reg.categoryId as any,
+      })
+    );
+
+
+    return formatted;
   }
 
   public async delete({ token, registrationId }: IDeleteRegistration): Promise<void> {

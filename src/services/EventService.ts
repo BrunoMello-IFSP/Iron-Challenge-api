@@ -22,8 +22,25 @@ export class EventService {
         path: "categories",
         select: "name weightRequirement",
       })
+      .populate({
+        path: "organizer",
+        select: "token",
+      })
       .sort({ finishDate: 1 });
 
-    return events;
+    const formatted = events.map(event => ({
+      _id: event._id,
+      name: event.name,
+      description: event.description,
+      startDate: event.startDate,
+      finishDate: event.finishDate,
+      categories: event.categories,
+      createdAt: event.createdAt,
+      updatedAt: event.updatedAt,
+
+      owner: event.organizer?.token ?? null,
+    }));
+
+    return formatted;
   }
 }
