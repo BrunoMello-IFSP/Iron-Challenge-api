@@ -6,7 +6,6 @@ import { EventDeleteService } from '@/services/EventDeleteService';
 import { EventService } from '@/services/EventService';
 
 
-
 export class EventCreate {
   public async handle(req: Request, res: Response): Promise<Response> {
     const token = req.headers['authorization'];

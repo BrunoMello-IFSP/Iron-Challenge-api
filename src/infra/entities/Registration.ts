@@ -11,15 +11,15 @@ const RegistrationSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User  ',
+      ref: 'users',
     },
     eventId: {
       type: Schema.Types.ObjectId,
-      ref: "Event"
+      ref: "events"
     },
     categoryId: {
       type: Schema.Types.ObjectId,
-      ref: "Categories"
+      ref: "categories"
     },
     competitorWeight: {
       type: Number
