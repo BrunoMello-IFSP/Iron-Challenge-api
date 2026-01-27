@@ -3,6 +3,8 @@ import AppError from '@/shared/errors/AppError';
 import { container } from 'tsyringe';
 import { CreateEventService } from '@/services/CreateEventService';
 import { EventDeleteService } from '@/services/EventDeleteService';
+import { EventService } from '@/services/EventService';
+
 
 
 export class EventCreate {
@@ -71,6 +73,36 @@ export class EventDelete {
 
       console.error(error);
       return res.status(500).json({ message: "Erro ao deletar evento." });
+    }
+  }
+}
+
+export class EventListActive {
+  public async handle(req: Request, res: Response): Promise<Response> {
+    const token = req.headers["authorization"];
+
+    try {
+      if (!token) {
+        return res.status(400).json({ error: "Token is required" });
+      }
+
+      const tokenValue = token.startsWith("Bearer ")
+        ? token.slice(7)
+        : token;
+
+      const eventService = new EventService();
+
+      const events = await eventService.listActive(tokenValue);
+
+      return res.status(200).json(events);
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res
+          .status(error.statusCode)
+          .json({ error: error.message });
+      }
+
+      return res.status(500).json({ error: "Internal Server Error" });
     }
   }
 }
