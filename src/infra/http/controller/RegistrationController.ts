@@ -58,36 +58,60 @@ export class RegistrationController {
     }
   }
 
-  public async list(req: Request, res: Response): Promise<Response> {
-    const token = req.headers['authorization'];
-    const { eventId, categoryId } = req.query;
+  // public async list(req: Request, res: Response): Promise<Response> {
+  //   const token = req.headers['authorization'];
+  //   const { eventId, categoryId } = req.query;
 
-    try {
-      if (!token) {
-        return res.status(400).json({ error: 'Token is required' });
-      }
+  //   try {
+  //     if (!token) {
+  //       return res.status(400).json({ error: 'Token is required' });
+  //     }
 
-      const tokenValue = token.startsWith('Bearer ') ? token.slice(7) : token;
+  //     const tokenValue = token.startsWith('Bearer ') ? token.slice(7) : token;
 
-      const registrationService = new RegistrationService();
+  //     const registrationService = new RegistrationService();
 
-      const registrations = await registrationService.list({
-        token: String(tokenValue),
-        data: {
-          eventId: eventId ? new Types.ObjectId(String(eventId)) : undefined,
-          categoryId: categoryId ? new Types.ObjectId(String(categoryId)) : undefined,
-        },
-      });
 
-      return res.status(200).json(registrations);
-    } catch (error) {
-      if (error instanceof AppError) {
-        return res.status(error.statusCode).json({ error: error.message });
-      }
+  //     const registrations = await registrationService.list({
+  //       token: String(tokenValue),
+  //       data: {
+  //         eventId: eventId ? new Types.ObjectId(String(eventId)) : undefined,
+  //         categoryId: categoryId ? new Types.ObjectId(String(categoryId)) : undefined,
+  //       },
+  //     });
 
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
+  //     return res.status(200).json(registrations);
+  //   } catch (error) {
+  //     if (error instanceof AppError) {
+  //       return res.status(error.statusCode).json({ error: error.message });
+  //     }
 
+  //     return res.status(500).json({ error: 'Internal Server Error' });
+  //   }
+
+  // }
+  public async listByOrganizer(req: Request, res: Response): Promise<Response> {
+    const token = req.headers.authorization!;
+
+    const service = new RegistrationService();
+
+    const data = await service.listByOrganizer({
+      token: token.startsWith('Bearer ') ? token.slice(7) : token,
+    });
+
+    return res.json(data);
+  }
+
+  public async listMyRegistrations(req: Request, res: Response): Promise<Response> {
+    const token = req.headers.authorization!;
+
+    const service = new RegistrationService();
+
+    const data = await service.listByUser({
+      token: token.startsWith('Bearer ') ? token.slice(7) : token,
+    });
+
+    return res.json(data);
   }
 
   public async delete(req: Request, res: Response): Promise<Response> {

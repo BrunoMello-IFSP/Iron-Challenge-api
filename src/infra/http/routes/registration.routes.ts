@@ -44,19 +44,23 @@ registrationRouter.patch(
 );
 
 registrationRouter.get(
-  '/list',
+  '/events',
   celebrate({
     [Segments.HEADERS]: Joi.object({
-      authorization: Joi.string()
-        .pattern(/^Bearer\s[\w-]+$/)
-        .required(),
+      authorization: Joi.string().required(),
     }).unknown(true),
-    [Segments.QUERY]: Joi.object({
-      eventId: Joi.string().optional(),
-      categoryId: Joi.string().optional(),
-    }),
   }),
-  registrationController.list.bind(registrationController)
+  registrationController.listByOrganizer
+);
+
+registrationRouter.get(
+  '/me',
+  celebrate({
+    [Segments.HEADERS]: Joi.object({
+      authorization: Joi.string().required(),
+    }).unknown(true),
+  }),
+  registrationController.listMyRegistrations
 );
 
 registrationRouter.delete(
