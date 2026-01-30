@@ -37,7 +37,11 @@ export class RegistrationService {
     const Registration = mongoose.model<IRegistration>('registrations')
     const User = mongoose.model<IUser>('users');
 
+    console.log("token")
+
     const userExists = await User.findOne({ token });
+
+
 
     if (!userExists) {
       throw new AppError('User not found', '404', 404);
@@ -72,6 +76,7 @@ export class RegistrationService {
 
     const userExists = await User.findOne({ token });
 
+
     if (!userExists) {
       throw new AppError('User not found', '404', 404);
     }
@@ -100,10 +105,140 @@ export class RegistrationService {
     return registration.toObject();
   }
 
-  public async list({ token, data }: IListRequest): Promise<IRegistrationListResponseDTO[]> {
+  // public async list({ token, data }: IListRequest): Promise<IRegistrationListResponseDTO[]> {
+  //   const Registration = mongoose.model<IRegistration>('registrations');
+  //   const User = mongoose.model<IUser>('users');
+  //   const Event = mongoose.model<IEvent>('events');
+
+  //   const user = await User.findOne({ token });
+
+  //   if (!user) {
+  //     throw new AppError('User not found', '404', 404);
+  //   }
+
+  //   const query: any = {};
+
+  //   /* ================= ADMIN ================= */
+  //   if (user.role === 'admin') {
+  //     const eventsCreated = await Event.find(
+  //       { organizer: user._id },
+  //       { _id: 1 }
+  //     );
+
+  //     const eventIds = eventsCreated.map(event => event._id);
+
+  //     query.$or = [
+  //       // inscrições que o admin FEZ (competidor)
+  //       { userId: user._id },
+
+  //       // inscrições dos eventos que ele ORGANIZA
+  //       eventIds.length > 0
+  //         ? { eventId: { $in: eventIds } }
+  //         : null,
+  //     ].filter(Boolean);
+
+  //     // filtros opcionais
+  //     if (data.eventId) {
+  //       query.eventId = data.eventId;
+  //     }
+
+  //     if (data.categoryId) {
+  //       query.categoryId = data.categoryId;
+  //     }
+
+  //     /* ================= USER COMUM ================= */
+  //   } else {
+  //     query.userId = user._id;
+
+  //     if (data.eventId) {
+  //       query.eventId = data.eventId;
+  //     }
+
+  //     if (data.categoryId) {
+  //       query.categoryId = data.categoryId;
+  //     }
+  //   }
+
+  //   const registrations = await Registration
+  //     .find(query)
+  //     .populate({
+  //       path: 'eventId',
+  //       select: 'name startDate finishDate',
+  //     })
+  //     .populate({
+  //       path: 'categoryId',
+  //       select: 'name weightRequirement',
+  //     })
+  //     .lean<IRegistration[]>();
+
+  //   const formatted: IRegistrationListResponseDTO[] = registrations.map(reg => ({
+  //     _id: reg._id as unknown as Types.ObjectId,
+  //     userId: reg.userId as unknown as Types.ObjectId,
+  //     competitorWeight: Number(reg.competitorWeight),
+  //     createdAt: reg.createdAt,
+  //     updatedAt: reg.updatedAt,
+  //     event: reg.eventId as any,
+  //     category: reg.categoryId as any,
+  //   }));
+
+  //   return formatted;
+  // }
+
+  public async listByOrganizer({
+    token,
+  }: { token: string }): Promise<IRegistrationListResponseDTO[]> {
+
     const Registration = mongoose.model<IRegistration>('registrations');
     const User = mongoose.model<IUser>('users');
     const Event = mongoose.model<IEvent>('events');
+
+    const user = await User.findOne({ token });
+
+    if (!user || user.role !== 'admin') {
+      throw new AppError('Not authorized', '403', 403);
+    }
+
+    const events = await Event.find(
+      { organizer: user._id },
+      { _id: 1 }
+    );
+
+    const eventIds = events.map(e => e._id);
+
+    if (eventIds.length === 0) return [];
+
+    const registrations = await Registration.find({
+      eventId: { $in: eventIds },
+    })
+      .populate({
+        path: 'eventId',
+        select: 'name startDate finishDate',
+      })
+      .populate({
+        path: 'categoryId',
+        select: 'name weightRequirement',
+      })
+      .lean<IRegistration[]>();
+
+    const formatted: IRegistrationListResponseDTO[] = registrations.map(reg => ({
+      _id: reg._id as unknown as Types.ObjectId,
+      userId: reg.userId as unknown as Types.ObjectId,
+      competitorWeight: Number(reg.competitorWeight),
+      createdAt: reg.createdAt,
+      updatedAt: reg.updatedAt,
+      event: reg.eventId as any,
+      category: reg.categoryId as any,
+    }));
+
+    return (formatted);
+  }
+
+  public async listByUser({
+    token,
+  }: { token: string }): Promise<IRegistrationListResponseDTO[]> {
+
+    const Registration = mongoose.model<IRegistration>('registrations');
+    const User = mongoose.model<IUser>('users');
 
     const user = await User.findOne({ token });
 
@@ -111,53 +246,9 @@ export class RegistrationService {
       throw new AppError('User not found', '404', 404);
     }
 
-    const query: any = {};
-
-    if (user.role === 'admin') {
-      const eventsCreated = await Event.find(
-        { organizer: user._id },
-        { _id: 1 }
-      );
-
-      const eventIds = eventsCreated.map(event => event._id);
-
-      if (eventIds.length === 0) {
-        return [];
-      }
-
-      query.eventId = { $in: eventIds };
-
-      if (data.eventId) {
-        const isAllowed = eventIds.some(
-          id => id.toString() === data.eventId?.toString()
-        );
-
-        if (!isAllowed) {
-          return [];
-        }
-
-        query.eventId = data.eventId;
-      }
-
-      if (data.categoryId) {
-        query.categoryId = data.categoryId;
-      }
-
-    } else {
-      query.userId = user._id;
-
-
-      if (data.eventId) {
-        query.eventId = data.eventId;
-      }
-
-      if (data.categoryId) {
-        query.categoryId = data.categoryId;
-      }
-    }
-
-    const registrations = await Registration
-      .find(query)
+    const registrations = await Registration.find({
+      userId: user._id,
+    })
       .populate({
         path: 'eventId',
         select: 'name startDate finishDate',
@@ -169,22 +260,19 @@ export class RegistrationService {
       .lean<IRegistration[]>();
 
 
-    const formatted = registrations.map(
-      (reg): IRegistrationListResponseDTO => ({
-        _id: reg._id as unknown as Types.ObjectId,
-        userId: reg.userId as unknown as Types.ObjectId,
-        competitorWeight: Number(reg.competitorWeight),
-        createdAt: reg.createdAt,
-        updatedAt: reg.updatedAt,
+    const formatted: IRegistrationListResponseDTO[] = registrations.map(reg => ({
+      _id: reg._id as unknown as Types.ObjectId,
+      userId: reg.userId as unknown as Types.ObjectId,
+      competitorWeight: Number(reg.competitorWeight),
+      createdAt: reg.createdAt,
+      updatedAt: reg.updatedAt,
+      event: reg.eventId as any,
+      category: reg.categoryId as any,
+    }));
 
-        event: reg.eventId as any,
-        category: reg.categoryId as any,
-      })
-    );
-
-
-    return formatted;
+    return (formatted);
   }
+
 
   public async delete({ token, registrationId }: IDeleteRegistration): Promise<void> {
     const Registration = mongoose.model<IRegistration>('registrations');
