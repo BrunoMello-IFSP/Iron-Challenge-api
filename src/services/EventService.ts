@@ -43,4 +43,28 @@ export class EventService {
 
     return formatted;
   }
+
+
+  public async listByOrganizer(token: string) {
+    const User = mongoose.model("users");
+    const Event = mongoose.model("events");
+
+    const user = await User.findOne({ token });
+    if (!user) {
+      throw new AppError("User not found", "404", 404);
+    }
+
+    const events = await Event.find({
+      organizer: user._id,
+    })
+      .populate({
+        path: "categories",
+        select: "name weightRequirement",
+      })
+      .sort({ startDate: 1 })
+      .lean();
+
+    return events;
+  }
 }
+
