@@ -105,3 +105,29 @@ export class EventListActive {
     }
   }
 }
+
+export class EventListMy {
+  public async handle(req: Request, res: Response): Promise<Response> {
+    try {
+      const token = req.headers.authorization?.replace("Bearer ", "");
+
+      if (!token) {
+        return res.status(400).json({ error: "Token is required" });
+      }
+
+      const eventService = new EventService();
+
+      const events = await eventService.listByOrganizer(token);
+
+      return res.status(200).json(events);
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res
+          .status(error.statusCode)
+          .json({ error: error.message });
+      }
+
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+}
