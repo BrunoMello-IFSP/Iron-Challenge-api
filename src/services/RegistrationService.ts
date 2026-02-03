@@ -211,6 +211,10 @@ export class RegistrationService {
       eventId: { $in: eventIds },
     })
       .populate({
+        path: 'userId',
+        select: 'name',
+      })
+      .populate({
         path: 'eventId',
         select: 'name startDate finishDate',
       })
@@ -218,11 +222,12 @@ export class RegistrationService {
         path: 'categoryId',
         select: 'name weightRequirement',
       })
-      .lean<IRegistration[]>();
+      .lean();
 
     const formatted: IRegistrationListResponseDTO[] = registrations.map(reg => ({
       _id: reg._id as unknown as Types.ObjectId,
       userId: reg.userId as unknown as Types.ObjectId,
+      competitorName: (reg.userId as any).name,
       competitorWeight: Number(reg.competitorWeight),
       createdAt: reg.createdAt,
       updatedAt: reg.updatedAt,
