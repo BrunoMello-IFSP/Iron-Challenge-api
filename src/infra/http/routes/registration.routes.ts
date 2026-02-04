@@ -49,6 +49,9 @@ registrationRouter.get(
     [Segments.HEADERS]: Joi.object({
       authorization: Joi.string().required(),
     }).unknown(true),
+    [Segments.QUERY]: Joi.object({
+      categoryId: Joi.string().required(),
+    }),
   }),
   registrationController.listByOrganizer
 );

@@ -185,8 +185,8 @@ export class RegistrationService {
   // }
 
   public async listByOrganizer({
-    token,
-  }: { token: string }): Promise<IRegistrationListResponseDTO[]> {
+    token, categoryId,
+  }: { token: string, categoryId: string }): Promise<IRegistrationListResponseDTO[]> {
 
     const Registration = mongoose.model<IRegistration>('registrations');
     const User = mongoose.model<IUser>('users');
@@ -207,8 +207,13 @@ export class RegistrationService {
 
     if (eventIds.length === 0) return [];
 
+    const query: any = {
+      eventId: { $in: eventIds },
+    };
+
     const registrations = await Registration.find({
       eventId: { $in: eventIds },
+      categoryId: categoryId
     })
       .populate({
         path: 'userId',
