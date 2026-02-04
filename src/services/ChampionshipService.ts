@@ -54,6 +54,8 @@ export class ChampionshipService {
     }
 
 
+
+
     const shuffled = registrations.sort(() => Math.random() - 0.5);
 
     const championshipEntries = shuffled.map((registration, index) => ({
@@ -67,9 +69,24 @@ export class ChampionshipService {
 
     const created = await Championship.insertMany(championshipEntries);
 
-    return Championship.find({
-      _id: { $in: created.map(c => c._id) },
-    }).populate('userId', 'name').exec();
+    await Event.updateOne(
+      {
+        _id: new Types.ObjectId(eventId),
+        'categories.categoryId': new Types.ObjectId(categoryId),
+      },
+      {
+        $set: {
+          'categories.$.started': true,
+        },
+      }
+    );
+
+    await Championship.populate(created, {
+      path: 'userId',
+      select: 'name',
+    });
+
+    return created;
   }
 
   public async listAllEntry({

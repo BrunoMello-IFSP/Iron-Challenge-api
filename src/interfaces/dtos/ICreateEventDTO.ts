@@ -4,5 +4,5 @@ export interface ICreateEventDTO {
   startDate: string;
   finishDate: string;
   token: string;
-  categories: { name: string; weightRequirement: number }[];
+  categories: { name: string; weightRequirement: number; started: string }[];
 }

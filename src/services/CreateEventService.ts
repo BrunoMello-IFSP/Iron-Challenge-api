@@ -36,6 +36,8 @@ export class CreateEventService {
     }
 
 
+    //cria evento vazio
+
     const event = await EventModel.create({
       name,
       description,
@@ -46,28 +48,42 @@ export class CreateEventService {
     });
 
 
+    //cria categorias
+
     const createdCategories = await CategoryModel.insertMany(
-      categories.map((category) => ({
+      categories.map(category => ({
         name: category.name,
         weightRequirement: category.weightRequirement,
       }))
     );
 
-
+    //associa categorias ao evento
     await EventModel.findByIdAndUpdate(event._id, {
       $push: {
         categories: {
-          $each: createdCategories.map((c) => c._id),
+          $each: createdCategories.map(c => ({
+            categoryId: c._id,
+            started: false,
+          })),
         },
       },
     });
 
+    //busca evento final
 
-    const updatedEvent = await EventModel.findById(event._id).populate({
-      path: "categories",
-      select: "name weightRequirement",
-    });
+    const updatedEvent = await EventModel.findById(event._id).lean();
 
-    return updatedEvent as IEvent;
+    if (!updatedEvent) {
+      throw new AppError("Event not found", "404", 404);
+    }
+
+    return {
+      ...updatedEvent,
+      categories: updatedEvent.categories.map((cat: any) => ({
+        categoryId: cat.categoryId,
+        started: cat.started,
+      })),
+    } as IEvent;
   }
 }
+

@@ -22,8 +22,16 @@ const EventSchema = new Schema(
     },
     categories: [
       {
-        type: Schema.Types.ObjectId,
-        ref: 'categories',
+        _id: false,
+        categoryId: {
+          type: Schema.Types.ObjectId,
+          ref: 'categories',
+          required: true,
+        },
+        started: {
+          type: Boolean,
+          default: false,
+        },
       },
     ],
     organizer: {

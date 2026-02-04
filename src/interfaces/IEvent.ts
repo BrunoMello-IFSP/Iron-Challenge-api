@@ -2,8 +2,10 @@ import { Schema, Types } from "mongoose";
 import { IUser } from "./IUser";
 
 interface ICategories {
-  _id: Schema.Types.ObjectId;
+  categoryId: Schema.Types.ObjectId;
   name: string;
+  started: boolean;
+
 }
 
 export interface IEvent {
@@ -12,7 +14,7 @@ export interface IEvent {
   description: string;
   startDate: Date;
   finishDate: Date;
-  ICategories: ICategories[];
+  categories: ICategories[];
   organizer: Types.ObjectId | IUser;
   createdAt: Date;
   updatedAt: Date;

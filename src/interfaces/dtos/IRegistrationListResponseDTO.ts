@@ -19,5 +19,6 @@ export interface IRegistrationListResponseDTO {
     _id: Types.ObjectId;
     name: string;
     weightRequirement: number;
+    started: boolean;
   };
 }

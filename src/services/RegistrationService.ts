@@ -200,20 +200,36 @@ export class RegistrationService {
 
     const events = await Event.find(
       { organizer: user._id },
-      { _id: 1 }
-    );
+      { _id: 1, categories: 1 }
+    )
+      .populate({
+        path: 'categories.categoryId',
+        select: 'name weightRequirement',
+      })
+      .lean<IEvent[]>();
+
+    const eventCategoryMap = new Map<string, boolean>();
+
+    events.forEach(event => {
+      event.categories.forEach(cat => {
+        if (!cat.categoryId) return;
+
+        const catId =
+          typeof cat.categoryId === 'object'
+            ? (cat.categoryId as any)._id
+            : cat.categoryId;
+
+        eventCategoryMap.set(catId.toString(), cat.started);
+      });
+    });
 
     const eventIds = events.map(e => e._id);
 
     if (eventIds.length === 0) return [];
 
-    const query: any = {
-      eventId: { $in: eventIds },
-    };
-
     const registrations = await Registration.find({
       eventId: { $in: eventIds },
-      categoryId: categoryId
+      categoryId: new Types.ObjectId(categoryId),
     })
       .populate({
         path: 'userId',
@@ -229,18 +245,30 @@ export class RegistrationService {
       })
       .lean();
 
-    const formatted: IRegistrationListResponseDTO[] = registrations.map(reg => ({
-      _id: reg._id as unknown as Types.ObjectId,
-      userId: reg.userId as unknown as Types.ObjectId,
-      competitorName: (reg.userId as any).name,
-      competitorWeight: Number(reg.competitorWeight),
-      createdAt: reg.createdAt,
-      updatedAt: reg.updatedAt,
-      event: reg.eventId as any,
-      category: reg.categoryId as any,
-    }));
 
-    return (formatted);
+
+    return registrations
+      .filter(reg => reg.categoryId)
+      .map(reg => {
+        const category = reg.categoryId as any;
+
+        return {
+          _id: reg._id as unknown as Types.ObjectId,
+          userId: (reg.userId as any)._id,
+          competitorName: (reg.userId as any).name,
+          competitorWeight: Number(reg.competitorWeight),
+          createdAt: reg.createdAt,
+          updatedAt: reg.updatedAt,
+          event: reg.eventId as any,
+          category: {
+            _id: category._id,
+            name: category.name,
+            weightRequirement: category.weightRequirement,
+            started:
+              eventCategoryMap.get(category._id.toString()) ?? false,
+          },
+        };
+      });
   }
 
   public async listByUser({

@@ -19,29 +19,35 @@ export class EventService {
       finishDate: { $gte: today },
     })
       .populate({
-        path: "categories",
+        path: "categories.categoryId",
         select: "name weightRequirement",
       })
       .populate({
         path: "organizer",
         select: "token",
       })
-      .sort({ finishDate: 1 });
+      .sort({ finishDate: 1 })
+      .lean();
 
-    const formatted = events.map(event => ({
+    return events.map(event => ({
       _id: event._id,
       name: event.name,
       description: event.description,
       startDate: event.startDate,
       finishDate: event.finishDate,
-      categories: event.categories,
       createdAt: event.createdAt,
       updatedAt: event.updatedAt,
+
+      categories: event.categories.map((cat: any) => ({
+        categoryId: cat.categoryId?._id,
+        name: cat.categoryId?.name,
+        weightRequirement: cat.categoryId?.weightRequirement,
+        started: cat.started,
+      })),
 
       owner: event.organizer?.token ?? null,
     }));
 
-    return formatted;
   }
 
 
@@ -58,13 +64,21 @@ export class EventService {
       organizer: user._id,
     })
       .populate({
-        path: "categories",
+        path: "categories.categoryId",
         select: "name weightRequirement",
       })
       .sort({ startDate: 1 })
       .lean();
 
-    return events;
+    return events.map((event: any) => ({
+      ...event,
+      categories: event.categories.map((cat: any) => ({
+        categoryId: cat.categoryId?._id,
+        name: cat.categoryId?.name,
+        weightRequirement: cat.categoryId?.weightRequirement,
+        started: cat.started,
+      })),
+    }));
   }
 }
 

@@ -5,7 +5,7 @@ export interface IChampionship extends Document {
   eventId: mongoose.Types.ObjectId;
   categoryId: mongoose.Types.ObjectId;
   entryOrder: number;
-  attended: boolean;
+  attended: boolean | null;
   repetition: number;
   position?: number | null;
   createdAt: Date;
