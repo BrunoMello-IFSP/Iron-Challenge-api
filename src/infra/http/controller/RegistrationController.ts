@@ -92,11 +92,13 @@ export class RegistrationController {
   // }
   public async listByOrganizer(req: Request, res: Response): Promise<Response> {
     const token = req.headers.authorization!;
+    const { categoryId } = req.query;
 
     const service = new RegistrationService();
 
     const data = await service.listByOrganizer({
       token: token.startsWith('Bearer ') ? token.slice(7) : token,
+      categoryId: categoryId as string,
     });
 
     return res.json(data);
