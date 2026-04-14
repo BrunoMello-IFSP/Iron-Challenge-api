@@ -20,6 +20,9 @@ const EventSchema = new Schema(
     finishDate: {
       type: Date,
     },
+    eventDate: {
+      type: Date,
+    },
     categories: [
       {
         _id: false,
@@ -34,6 +37,9 @@ const EventSchema = new Schema(
         },
       },
     ],
+    sponsors: [{
+      type: String,
+    }],
     organizer: {
       type: Schema.Types.ObjectId,
       ref: 'users',

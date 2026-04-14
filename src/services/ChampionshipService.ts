@@ -123,6 +123,40 @@ export class ChampionshipService {
     return notAttended;
   }
 
+  public async listScoredEntry({
+    eventId,
+    categoryId,
+    token,
+  }: IRequest): Promise<IChampionship[]> {
+    const User = mongoose.model('users');
+    const Event = mongoose.model('events');
+    const Championship = mongoose.model<IChampionship>('championships');
+
+    const user = await User.findOne({ token });
+
+    console.log("passou")
+
+    if (!user) {
+      throw new AppError('User not found', '404', 404);
+    }
+
+    const event = await Event.findOne({ _id: eventId, organizer: user._id });
+
+    if (!event) {
+      throw new AppError('You are not the organizer of this event', '403', 403);
+    }
+
+
+
+    const scoredEntries = await Championship.find({
+      eventId: String(eventId),
+      categoryId: new Types.ObjectId(categoryId),
+      attended: { $ne: null },
+    }).populate('userId', 'name').exec();
+
+    return scoredEntries;
+  }
+
   public async updatePoints({
     id,
     attended,
@@ -180,14 +214,17 @@ export class ChampionshipService {
       eventId,
       categoryId,
       attended: true,
-    }).populate('userId', 'name')
+    }).populate<{ userId: any }>('userId', 'name avatar')
       .lean();
+
+    const event: any = await Event.findById(eventId).lean();
 
     if (!results.length) {
       return {
         eventId,
         categoryId,
         results: [],
+        sponsors: event?.sponsors || [],
       };
     }
 
@@ -198,6 +235,7 @@ export class ChampionshipService {
     const withPosition = sorted.map((r: any, index: number) => ({
       userId: r.userId._id,
       name: r.userId.name,
+      avatar: r.userId.avatar || null,
       repetition: r.repetition,
       attended: r.attended,
       position: index + 1,
@@ -206,6 +244,7 @@ export class ChampionshipService {
       eventId,
       categoryId,
       results: withPosition,
+      sponsors: event?.sponsors || [],
     };
   }
 
@@ -231,7 +270,7 @@ export class ChampionshipService {
       categoryId,
       attended: true,
     })
-      .populate('userId', 'name')
+      .populate<{ userId: any }>('userId', 'name avatar')
       .lean();
 
     if (!results.length) {
@@ -250,7 +289,7 @@ export class ChampionshipService {
     // 3. Mapear e salvar a posição no banco
     const withPosition = await Promise.all(
       sorted.map(async (r, index) => {
-        const user = r.userId as unknown as { _id: string; name: string };
+        const user = r.userId as unknown as { _id: string; name: string; avatar?: string };
 
         // Atualiza o campo `position` no documento
         await Championship.updateOne(
@@ -261,6 +300,7 @@ export class ChampionshipService {
         return {
           userId: user._id,
           name: user.name,
+          avatar: user.avatar || null,
           repetition: r.repetition,
           attended: r.attended,
           position: index + 1,
@@ -274,5 +314,44 @@ export class ChampionshipService {
       categoryId,
       results: withPosition,
     };
+  }
+
+  public async listMyResults(token: string) {
+    const User = mongoose.model('users');
+    const Event = mongoose.model('events');
+    const Category = mongoose.model('categories');
+    const Championship = mongoose.model<IChampionship>('championships');
+
+    const user = await User.findOne({ token });
+    if (!user) {
+      throw new AppError('User not found', '404', 404);
+    }
+
+    const results = await Championship.find({
+      userId: user._id,
+      position: { $ne: null },
+    })
+      .populate({
+        path: 'eventId',
+        select: 'name eventDate',
+      })
+      .populate({
+        path: 'categoryId',
+        select: 'name weightRequirement',
+      })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return results.map((r: any) => ({
+      _id: r._id,
+      position: r.position,
+      repetition: r.repetition,
+      eventId: r.eventId?._id,
+      categoryId: r.categoryId?._id,
+      eventName: r.eventId?.name,
+      eventDate: r.eventId?.eventDate,
+      categoryName: r.categoryId?.name,
+      weightRequirement: r.categoryId?.weightRequirement,
+    }));
   }
 }

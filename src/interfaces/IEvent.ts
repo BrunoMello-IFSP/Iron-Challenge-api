@@ -14,7 +14,9 @@ export interface IEvent {
   description: string;
   startDate: Date;
   finishDate: Date;
+  eventDate: Date;
   categories: ICategories[];
+  sponsors?: string[];
   organizer: Types.ObjectId | IUser;
   createdAt: Date;
   updatedAt: Date;

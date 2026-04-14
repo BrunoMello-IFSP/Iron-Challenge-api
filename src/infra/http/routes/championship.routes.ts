@@ -63,9 +63,6 @@ championshipRouter.patch(
 championshipRouter.get(
   '/result',
   celebrate({
-    [Segments.HEADERS]: Joi.object({
-      authorization: Joi.string().required(),
-    }).unknown(),
     [Segments.QUERY]: Joi.object({
       eventId: Joi.string().required(),
       categoryId: Joi.string().required(),
@@ -73,6 +70,7 @@ championshipRouter.get(
   }),
   championshipController.getResult.bind(championshipController)
 );
+
 
 //Campeoes
 championshipRouter.patch(
@@ -89,5 +87,42 @@ championshipRouter.patch(
   championshipController.winners.bind(championshipController)
 );
 
+championshipRouter.get(
+  '/orderList',
+  celebrate({
+    [Segments.HEADERS]: Joi.object({
+      authorization: Joi.string().required(),
+    }).unknown(),
+    [Segments.QUERY]: Joi.object({
+      eventId: Joi.string().required(),
+      categoryId: Joi.string().required(),
+    }),
+  }),
+  championshipController.list.bind(championshipController)
+);
+
+championshipRouter.get(
+  '/scoredList',
+  celebrate({
+    [Segments.HEADERS]: Joi.object({
+      authorization: Joi.string().required(),
+    }).unknown(),
+    [Segments.QUERY]: Joi.object({
+      eventId: Joi.string().required(),
+      categoryId: Joi.string().required(),
+    }),
+  }),
+  championshipController.listScored.bind(championshipController)
+);
+
+championshipRouter.get(
+  '/myResults',
+  celebrate({
+    [Segments.HEADERS]: Joi.object({
+      authorization: Joi.string().required(),
+    }).unknown(),
+  }),
+  championshipController.listMyResults.bind(championshipController)
+);
 
 export { championshipRouter }
