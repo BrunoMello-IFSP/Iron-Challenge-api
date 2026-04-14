@@ -9,7 +9,7 @@ import { EventService } from '@/services/EventService';
 export class EventCreate {
   public async handle(req: Request, res: Response): Promise<Response> {
     const token = req.headers['authorization'];
-    const { name, description, startDate, finishDate, categories } = req.body;
+    const { name, description, startDate, finishDate, eventDate, categories, sponsors } = req.body;
 
 
     if (!token) {
@@ -19,7 +19,7 @@ export class EventCreate {
     const tokenValue = token.startsWith('Bearer ') ? token.slice(7) : token;
 
     try {
-      if (!name || !description || !startDate || !finishDate || !categories) {
+      if (!name || !description || !startDate || !finishDate || !eventDate || !categories) {
         throw new AppError('Todos os campos são obrigatórios.', '400', 400);
       }
 
@@ -30,7 +30,7 @@ export class EventCreate {
 
       const createEventService = container.resolve(CreateEventService);
 
-      const event = await createEventService.execute({ name, description, startDate, finishDate, categories, token: String(tokenValue) });
+      const event = await createEventService.execute({ name, description, startDate, finishDate, eventDate, categories, sponsors, token: String(tokenValue) });
 
       return res.status(201).json({ message: 'Evento criado com sucesso!', event });
 

@@ -22,6 +22,7 @@ eventRouter.post(
       description: Joi.string().required().min(5).max(500),
       startDate: Joi.date().iso().required(),
       finishDate: Joi.date().iso().required(),
+      eventDate: Joi.date().iso().required(),
       categories: Joi.array()
         .items(
           Joi.object({
@@ -30,6 +31,7 @@ eventRouter.post(
           })
         )
         .required(),
+      sponsors: Joi.array().items(Joi.string().uri()).optional(),
     },
   }),
   eventCreateController.handle,

@@ -13,7 +13,9 @@ export class CreateEventService {
     description,
     startDate,
     finishDate,
+    eventDate,
     categories,
+    sponsors,
     token,
   }: ICreateEventDTO): Promise<IEvent> {
     const EventModel = mongoose.model<IEvent>("events");
@@ -43,8 +45,10 @@ export class CreateEventService {
       description,
       startDate,
       finishDate,
+      eventDate,
       organizer: user._id,
       categories: [],
+      sponsors: sponsors || [],
     });
 
 

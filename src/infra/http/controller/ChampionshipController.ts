@@ -76,6 +76,38 @@ export class ChampionshipController {
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
+  public async listScored(req: Request, res: Response): Promise<Response> {
+    const token = req.headers['authorization'];
+    const { eventId, categoryId } = req.query;
+
+    try {
+      if (!token) {
+        return res.status(400).json({ error: 'Token is required' });
+      }
+
+      const tokenValue = token.startsWith('Bearer ') ? token.slice(7) : token;
+
+      if (!eventId || !categoryId) {
+        return res.status(400).json({ error: 'eventId and categoryId are required' });
+      }
+
+      const championshipService = container.resolve(ChampionshipService);
+
+      const result = await championshipService.listScoredEntry({
+        eventId: String(eventId),
+        categoryId: String(categoryId),
+        token: String(tokenValue)
+      });
+
+      return res.status(200).json(result);
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({ error: error.message });
+      }
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
+
   public async updatePoints(req: Request, res: Response): Promise<Response> {
     const token = req.headers['authorization'];
     const { _id, attended, repetition, eventId, categoryId } = req.body;
@@ -117,16 +149,9 @@ export class ChampionshipController {
   }
 
   public async getResult(req: Request, res: Response): Promise<Response> {
-    const token = req.headers['authorization'];
     const { eventId, categoryId } = req.query;
 
     try {
-      if (!token) {
-        return res.status(400).json({ error: 'Token is required' });
-      }
-
-      const tokenValue = token.startsWith('Bearer ') ? token.slice(7) : token;
-
       if (!eventId || !categoryId) {
         return res.status(400).json({ error: 'eventId and categoryId are required' });
       }
@@ -136,7 +161,6 @@ export class ChampionshipController {
       const result = await championshipService.getResult({
         eventId: String(eventId),
         categoryId: String(categoryId),
-        token: String(tokenValue),
       });
 
       return res.status(200).json(result);
@@ -181,6 +205,28 @@ export class ChampionshipController {
   }
 
 
+  public async listMyResults(req: Request, res: Response): Promise<Response> {
+    const token = req.headers['authorization'];
+
+    try {
+      if (!token) {
+        return res.status(400).json({ error: 'Token is required' });
+      }
+
+      const tokenValue = token.startsWith('Bearer ') ? token.slice(7) : token;
+
+      const championshipService = container.resolve(ChampionshipService);
+
+      const result = await championshipService.listMyResults(String(tokenValue));
+
+      return res.status(200).json(result);
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({ error: error.message });
+      }
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
 }
 
 

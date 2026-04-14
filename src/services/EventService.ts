@@ -14,9 +14,14 @@ export class EventService {
     }
 
     const today = new Date();
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
 
     const events = await Event.find({
-      finishDate: { $gte: today },
+      $or: [
+        { finishDate: { $gte: today } },
+        { eventDate: { $gte: startOfToday } }
+      ]
     })
       .populate({
         path: "categories.categoryId",
@@ -35,6 +40,7 @@ export class EventService {
       description: event.description,
       startDate: event.startDate,
       finishDate: event.finishDate,
+      eventDate: event.eventDate,
       createdAt: event.createdAt,
       updatedAt: event.updatedAt,
 
