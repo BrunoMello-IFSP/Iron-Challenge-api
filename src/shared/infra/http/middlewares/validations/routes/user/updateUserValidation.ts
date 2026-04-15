@@ -12,15 +12,15 @@ export const updateUserValidation = {
     phone: Joi.number().optional(),
     email: Joi.string().email().optional(),
     role: Joi.string().optional(),
-    avatar: Joi.string().optional(),
+    avatar: Joi.string().allow('', null).optional(),
     address: Joi.object({
       street: Joi.string().optional(),
       number: Joi.number().optional(),
       neighborhood: Joi.string().optional(),
-      complement: Joi.string().allow('').optional(),
+      complement: Joi.string().allow('', null).optional(),
       city: Joi.string().optional(),
       uf: Joi.string().length(2).optional(),
       zipCode: Joi.string().optional(),
     }).optional(),
-  }),
+  }).unknown(),
 };
